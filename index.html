@@ -16,8 +16,7 @@
   //Определяем карту, координаты центра и начальный масштаб
   var map = L.map('map').setView([45.035470, 38.975313], 13);
 
-
-  /*map.on(
+  map.on(
     'popupopen', function(e)
       {
         var latLngArray = e.popup.getLatLng(); //определяем долготу и широту
@@ -34,7 +33,7 @@
         let matcher = popup_content.match(regexp);
         neighbors = objects[matcher]["neighbors"]
       }
-  );*/
+  );
 
   //Добавляем на нашу карту слой OpenStreetMap
   L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
