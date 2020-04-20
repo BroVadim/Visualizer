@@ -13,32 +13,8 @@
   <div id="map"></div>
 
   <script type='text/javascript'>
-  //Определяем карту, координаты центра и начальный масштаб
-  var map = L.map('map').setView([45.035470, 38.975313], 13);
 
-  /*map.on(
-    'popupopen', function(e)
-      {
-        var latLngArray = e.popup.getLatLng(); //определяем долготу и широту
-
-        var circle = L.circle(latLngArray, {
-          color: 'red',
-          fillColor: '#f03',
-          fillOpacity: 0.5,
-          radius: 1000
-        }).addTo(map);
-        regexp = '(?<=\<strong\>).*?(?=\<\/strong\>)' //регулярка для удаления тега из заголовка popup
-        popup_content = String(e.popup._source._popup._content) //данные о popup, на который нажали
-        let matcher = popup_content.match(regexp);
-        neighbors = objects[matcher]["neighbors"]
-      }
-  );*/
-
-  //Добавляем на нашу карту слой OpenStreetMap
-  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a rel="nofollow" href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
-
+  var map = L.map('map').setView([45.035470, 38.975313], 13);                             //Определяем карту, координаты центра и начальный масштаб
   var LeafIcon = L.Icon.extend({
 			options: {
 				iconSize:     [20, 25],
@@ -46,25 +22,50 @@
 				popupAnchor:  [0, 0]
 			}
 		});
-  var neighborIcon = new LeafIcon({iconUrl: 'leaflet/neighbors_baloon.png'})
+  var neighborIcon = new LeafIcon({iconUrl: 'leaflet/neighbors_baloon.png'});
 
-  var searchedObjects = []
+  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {                     //Добавляем на карту слой OpenStreetMap
+      attribution: '&copy; <a rel="nofollow" href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  var objectsN = L.layerGroup();                                                          //объявляю слой для "соседей" исследуемого объекта
+
+  map.on(
+    'popupopen', function(e)
+      {
+
+        try{
+            objectsN.eachLayer(function(layer){map.removeLayer(layer);});                   //удаляем уже использовавшиеся слои для карты
+        }
+        catch(err){
+          console.log("Ошибка");                                                            //при ошибке удаления выводим сообщение в консоль
+        }
+        var latLngArray = e.popup.getLatLng();                                              //определяем долготу и широту точки,которая будет центром окружности
+        var circle = L.circle(latLngArray,{                                                 //создаём окружность для отрисоки
+          color: 'red',
+          fillColor: '#f03',
+          fillOpacity: 0.5,
+          radius: 1000
+        });
+        objectsN.addLayer(circle).addTo(map);                                               //добавляем окружность для рисования
+
+
+        regexp = '(?<=\<strong\>).*?(?=\<\/strong\>)'                                       //регулярка для удаления тега из заголовка popup
+        popup_content = String(e.popup._source._popup._content)                             //данные о popup, на который нажали
+        let matcher = popup_content.match(regexp);
+        neighbors = objects[matcher]["neighbors"]
+        console.log(neighbors)
+      }
+  );
+
   for (let key of Object.keys(objects)) {
     if (objects[key]["neighbors"].length!=0)
     {
-      latitude = objects[key]["latitude"];
-      longtitude = objects[key]["longtitude"];
-      square = String(objects[key]["square"]);
-      description="<strong>"+key+"</strong><p>"+square+" м<sup>2</sup></p>";
-      L.marker([latitude,longtitude],{icon: neighborIcon}).addTo(map).bindPopup(description);
-
-      /*var circle = L.circle([latitude,longtitude], {
-        color: 'red',
-        fillColor: '#f03',
-        fillOpacity: 0.5,
-        radius: 1000
-      }).addTo(map)*/
-
+      latitude = objects[key]["latitude"];                                                    //значение долготы
+      longtitude = objects[key]["longtitude"];                                                //значение широты
+      square = String(objects[key]["square"]);                                                //площадь исследуемого объекта
+      description="<strong>"+key+"</strong><p>"+square+" м<sup>2</sup></p>";                  //описание для popup маркера
+      L.marker([latitude,longtitude],{icon: neighborIcon}).addTo(map).bindPopup(description); //добавляю маркер объекта на карту
     }
   }
 
