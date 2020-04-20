@@ -16,29 +16,37 @@
   //Определяем карту, координаты центра и начальный масштаб
   var map = L.map('map').setView([45.035470, 38.975313], 13);
 
-  map.on(
+  /*map.on(
     'popupopen', function(e)
       {
         var latLngArray = e.popup.getLatLng(); //определяем долготу и широту
-        //alert(latLngArray)
+
         var circle = L.circle(latLngArray, {
           color: 'red',
           fillColor: '#f03',
           fillOpacity: 0.5,
           radius: 1000
         }).addTo(map);
-
         regexp = '(?<=\<strong\>).*?(?=\<\/strong\>)' //регулярка для удаления тега из заголовка popup
         popup_content = String(e.popup._source._popup._content) //данные о popup, на который нажали
         let matcher = popup_content.match(regexp);
         neighbors = objects[matcher]["neighbors"]
       }
-  );
+  );*/
 
   //Добавляем на нашу карту слой OpenStreetMap
   L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a rel="nofollow" href="http://osm.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
+
+  var LeafIcon = L.Icon.extend({
+			options: {
+				iconSize:     [20, 25],
+				iconAnchor:   [10,25],
+				popupAnchor:  [0, 0]
+			}
+		});
+  var neighborIcon = new LeafIcon({iconUrl: 'leaflet/neighbors_baloon.png'})
 
   var searchedObjects = []
   for (let key of Object.keys(objects)) {
@@ -48,14 +56,14 @@
       longtitude = objects[key]["longtitude"];
       square = String(objects[key]["square"]);
       description="<strong>"+key+"</strong><p>"+square+" м<sup>2</sup></p>";
-      L.marker([latitude,longtitude]).addTo(map).bindPopup(description);
+      L.marker([latitude,longtitude],{icon: neighborIcon}).addTo(map).bindPopup(description);
 
-      var circle = L.circle([latitude,longtitude], {
+      /*var circle = L.circle([latitude,longtitude], {
         color: 'red',
         fillColor: '#f03',
         fillOpacity: 0.5,
         radius: 1000
-      }).addTo(map)
+      }).addTo(map)*/
 
     }
   }
