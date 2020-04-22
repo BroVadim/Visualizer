@@ -41,16 +41,27 @@
     document.body.append(div);
   }
 
+  //function removeTableDiv(){
+  //  document.getElementById("table").remove();
+  //  console.log("Div таблицы удален");
+  //}
+
   function removeTableDiv(){
-    document.getElementById("table").remove();
+
+    var div = document.getElementById("table");
+    if (div !== null) {
+      div.remove()
+    }
     console.log("Div таблицы удален");
   }
+
 
   function object_popup_click(e)
   {
     try{
         objectsN.eachLayer(function(layer){map.removeLayer(layer);});                   //удаляем уже использовавшиеся слои для карты
         removeTableDiv();
+        createTableDiv();
     }
     catch(err){
       console.log("Ошибка очистки значения");                                                            //при ошибке удаления выводим сообщение в консоль
