@@ -1,16 +1,25 @@
 <html>
-
 <head>
   <link rel="stylesheet" href="leaflet/leaflet.css" />
   <script src="leaflet/leaflet.js"></script>
-  <script src="map.js"></script>
+  <script src="map2.js"></script>
   <style>
-    #map {width: 1200px; height: 800px; }
+    #map {
+      width: 55%;
+      height: 99%;
+    }
+    #table{
+      width:40%;
+      height:99%;
+    }
+    #map, #table {
+      display: inline-block;
+    }
   </style>
 </head>
-
 <body>
   <div id="map"></div>
+  <!--<div id="table"></div>-->
 
   <script type='text/javascript'>
 
@@ -26,26 +35,47 @@
 
   var objectsN = L.layerGroup();                                                          //объявляю слой для "соседей" исследуемого объекта
 
+  function createTableDiv(){
+    let div = document.createElement("div");
+    div.id = "table";
+    document.body.append(div);
+  }
+
+  function removeTableDiv(){
+    document.getElementById("table").remove();
+    console.log("Div таблицы удален");
+  }
+
   function object_popup_click(e)
   {
-
     try{
         objectsN.eachLayer(function(layer){map.removeLayer(layer);});                   //удаляем уже использовавшиеся слои для карты
+        removeTableDiv();
     }
     catch(err){
-      console.log("Ошибка");                                                            //при ошибке удаления выводим сообщение в консоль
+      console.log("Ошибка очистки значения");                                                            //при ошибке удаления выводим сообщение в консоль
     }
+
     var object_latitude = e.latlng.lat;
     var object_longtitude = e.latlng.lng;
     var circle = L.circle([object_latitude,object_longtitude],{                                                 //создаём окружность для отрисоки
-      color: 'red',fillColor: '#f03',
+      color:'#00008B',fillColor:'#6495ED',
       fillOpacity: 0.5,radius: 1000
     });
 
+    let headerList = ["Адрес","Площадь","Стоимость"];
+    var txt = "<table border='1'><tr>";
+    for (var j=0; j<headerList.length; j++){
+      txt += "<th>"+headerList[j]+"</th>";
+    }
+    txt+="</tr>";
     objectsN.addLayer(circle).addTo(map);                                               //добавляем окружность для рисования
-    matcher = e.sourceTarget.properties["object_address"]
-
-    neighbors = objects[matcher]["neighbors"]
+    object_address = e.sourceTarget.properties["object_address"];
+    object_square = e.sourceTarget.properties["object_square"];
+    object_price = e.sourceTarget.properties["object_price"]
+    txt +="<tr><th>"+object_address+"</th><th>"+String(object_square)+"</th><th>"+String(object_price)+"</th>"; //первая строка - описание исследуемого объекта
+    //console.log(txt);
+    neighbors = objects[object_address]["neighbors"];
     neighbors_number = neighbors.length;
     for (var i=0; i<neighbors_number; i++)
     {
@@ -53,10 +83,17 @@
       neighbor_latitude = objects[neighbor_name]["latitude"];
       neighbor_longtitude = objects[neighbor_name]["longtitude"];
       neighbor_square = objects[neighbor_name]["square"];
-      neighbor_description = "<strong>"+neighbors[i]+"</strong><p>"+neighbor_square+" м<sup>2</sup></p>";
+      neighbor_price = objects[neighbor_name]["price"]; //определение цены объекта-соседа
+      neighbor_description = "<strong>"+neighbors[i]+"</strong><p>"+neighbor_square+" м<sup>2</sup></p><p>Цена: "+neighbor_price+"</p>";
       neighbor_marker = L.marker([neighbor_latitude,neighbor_longtitude]).bindPopup(neighbor_description);
       objectsN.addLayer(neighbor_marker).addTo(map);
+      txt += "<tr><td>" + neighbor_name + "</td>";
+      txt +="<td>" + String(neighbor_square) + "</td>";
+      txt +="<td>" + String(neighbor_price) + "</td></tr>";
     }
+    txt +="</table>";
+    console.log(txt);
+    document.getElementById("table").innerHTML = txt;
   }
 
   for (let key of Object.keys(objects)) {
@@ -65,15 +102,16 @@
       latitude = objects[key]["latitude"];                                                    //значение долготы
       longtitude = objects[key]["longtitude"];                                                //значение широты
       square = String(objects[key]["square"]);                                                //площадь исследуемого объекта
-      description="<strong>"+key+"</strong><p>"+square+" м<sup>2</sup></p>";                  //описание для popup маркера
+      price = String(objects[key]["price"]);
+      ////description="<strong>"+key+"</strong><p>"+square+" м<sup>2</sup></p>";                  //описание для popup маркера
+      description="<strong>"+key+"</strong><p>"+square+" м<sup>2</sup></p><p>Цена: "+price+"</p>";
       var marker = L.marker([latitude, longtitude],{icon: neighborIcon});
       marker.on("click", object_popup_click);
-      marker.properties = {object_address: key};
+      marker.properties = {object_address: key, object_square:square, object_price:price};
       marker.addTo(map).bindPopup(description);
     }
   }
 
   </script>
 </body>
-
 </html>
