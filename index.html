@@ -2,7 +2,7 @@
 <head>
   <link rel="stylesheet" href="leaflet/leaflet.css" />
   <script src="leaflet/leaflet.js"></script>
-  <script src="map2.js"></script>
+  <script src="map3.js"></script>
   <style>
     #map {
       width: 55%;
@@ -74,7 +74,8 @@
       fillOpacity: 0.5,radius: 1000
     });
 
-    let headerList = ["Адрес","Площадь","Стоимость"];
+    //let headerList = ["Адрес","Площадь","Стоимость"];
+    let headerList = ["Адрес","Площадь","Стоимость","Ссылка"]
     var txt = "<table border='1'><tr>";
     for (var j=0; j<headerList.length; j++){
       txt += "<th>"+headerList[j]+"</th>";
@@ -84,7 +85,8 @@
     object_address = e.sourceTarget.properties["object_address"];
     object_square = e.sourceTarget.properties["object_square"];
     object_price = e.sourceTarget.properties["object_price"]
-    txt +="<tr><th>"+object_address+"</th><th>"+String(object_square)+"</th><th>"+String(object_price)+"</th>"; //первая строка - описание исследуемого объекта
+
+    txt +="<tr><th>"+object_address+"</th><th>"+String(object_square)+"</th><th>"+String(object_price)+"</th><th></th>"; //первая строка - описание исследуемого объекта
     //console.log(txt);
     neighbors = objects[object_address]["neighbors"];
     neighbors_number = neighbors.length;
@@ -95,12 +97,21 @@
       neighbor_longtitude = objects[neighbor_name]["longtitude"];
       neighbor_square = objects[neighbor_name]["square"];
       neighbor_price = objects[neighbor_name]["price"]; //определение цены объекта-соседа
+      neighbor_link = objects[neighbor_name]["link"]
       neighbor_description = "<strong>"+neighbors[i]+"</strong><p>"+neighbor_square+" м<sup>2</sup></p><p>Цена: "+neighbor_price+"</p>";
       neighbor_marker = L.marker([neighbor_latitude,neighbor_longtitude]).bindPopup(neighbor_description);
       objectsN.addLayer(neighbor_marker).addTo(map);
       txt += "<tr><td>" + neighbor_name + "</td>";
       txt +="<td>" + String(neighbor_square) + "</td>";
-      txt +="<td>" + String(neighbor_price) + "</td></tr>";
+      //txt +="<td>" + String(neighbor_price) + "</td></tr>";
+      txt +="<td>" + String(neighbor_price) + "</td>";
+      if(neighbor_link=="None")
+      {
+        txt+="<td></td></tr>"
+      }
+      else{
+        txt+="<td><a href=\"" + String(neighbor_link)+"\" target=\"_blank\">Ссылка</a></td></tr>"
+      }
     }
     txt +="</table>";
     console.log(txt);
