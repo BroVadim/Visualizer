@@ -51,14 +51,10 @@
 
   function object_popup_click(e)
   {
-    try{
-        objectsN.eachLayer(function(layer){map.removeLayer(layer);});                   //удаляем уже использовавшиеся слои для карты
+    try{objectsN.eachLayer(function(layer){map.removeLayer(layer);});                   //удаляем уже использовавшиеся слои для карты
         removeTableDiv();
-        createTableDiv();
-    }
-    catch(err){
-      console.log("Ошибка очистки значения");                                                            //при ошибке удаления выводим сообщение в консоль
-    }
+        createTableDiv();}
+    catch(err){console.log("Ошибка очистки значения");}                                                            //при ошибке удаления выводим сообщение в консоль
 
     var object_latitude = e.latlng.lat;
     var object_longtitude = e.latlng.lng;
